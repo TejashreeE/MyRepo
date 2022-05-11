@@ -1,0 +1,64 @@
+<html>
+	<head>
+		<title>{{t}}</title>
+	</head>
+	<style>	
+		h1{
+			font-family:"Arial Black", Gadget, sans-serif;
+		}
+		body{
+			background-color:rgb(161, 197, 245);
+		}
+	</style>
+<body>
+	<h1>{{h}}</h1>
+	<hr>
+	<h3>Update Data with a reference</h3>
+	<form id="form1" action="/action3" method="POST,GET" enctype="data">
+	{% for task  in tasks %}
+		Unique Object ID : {{ task['_id'] }}<br/>
+		<input type="text" name="_id" value="{{ task['_id'] }}" hidden>
+		<table>
+			<tr>
+				<td>Customer Name</td><td> : </td><td><input type="text" name="name" value="{{ task['name'] }}" placeholder="{{ task['name'] }}" readonly></td>
+			</tr>
+			<tr>
+				<td>Environment</td>
+				<td> : </td>
+				<td>
+					<select name="environment"  style="width:100%;max-width:200;">
+						{% for envtype in envtypes %}
+							{% if envtype == task['Environment'] %}
+    							<option value="{{envtype}}" selected='selected'>{{envtype}}</option>
+							{% else %}
+								<option value="{{envtype}}">{{envtype}}</option>
+							{% endif %}
+						{% endfor %}
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Date</td><td> : </td><td><input type="date" name="date" value="{{ task['date'] }}" placeholder="{{ task['date'] }}" readonly></td>
+			</tr>
+			<tr>
+				<td>Region</td><td> : </td>
+				<td>
+					<select name="region" style="width:100%;max-width:200;">
+						{% for region in regions %}
+							{% if region == task['Region'] %}
+								<option value="{{region}}" selected='selected'>{{region}}</option>
+							{% else %}
+								<option value="{{region}}">{{region}}</option>
+							{% endif %}							
+						{% endfor %}
+					</select>
+				</td>
+			</tr>
+		</table>
+		{% endfor %}
+		<button type="submit"> Update Requirements </button>
+		<br/>
+	</form>	
+	<a href="/">Return to DataList</a>
+</body>
+</html>

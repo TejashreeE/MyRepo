@@ -1,32 +1,35 @@
+from email import message
+from email.message import Message
+from pydoc import doc
+import re
+from tabnanny import check
 from unicodedata import name
-from flask import Flask, render_template, redirect, request, session, url_for, g
+from flask import Flask, render_template, redirect, request, session, url_for
 # The Session instance is not used for direct access, you should always use flask.session
 from flask_session import Session
-from flask_login import login_required
+#from logging import FileHandler, WARNING
+#from flask_login import login_required
 from pymongo import MongoClient
 from bson import ObjectId
-from datetime import datetime
+from datetime import date, datetime
 import bcrypt
-import re
 import sys
 import subprocess
 import shlex
 
-#myclient = MongoClient("mongodb+srv://admin:SMUQis3ismx7zN4b@cluster44.zotew.mongodb.#net/myFirstDatabase?retryWrites=true&w=majority")
+myclient = MongoClient("mongodb://root:N5tfgb9QExIGYXIq@cluster0-shard-00-00.e4swe.mongodb.net:27017,cluster0-shard-00-01.e4swe.mongodb.net:27017,cluster0-shard-00-02.e4swe.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-biz1ll-shard-0&authSource=admin&retryWrites=true&w=majority")
+
 def get_db():
-    client = MongoClient(host='20.219.136.154',
-                         port=27017,
-                         username='Customer',
-                         password='Customer',
-                         authSource="admin")
+    client = myclient
     db = client["Customer"]
+    print ("Connected")
     return db
 
 title = "To Save requirements from Customer"
 heading = "Customer Requirements"
 
 db = get_db()
-records = db.user
+records = db.register
 todos = db.todo
 
 app = Flask(__name__)
@@ -87,15 +90,13 @@ def getREL_IDSub(EnvType,p):
 @app.route("/")
 def index():
     return render_template('index.html')
-    #return render_template('login.html')
 
 
 @app.route("/register", methods=["POST", "GET"])
 def register():
 
-    date = datetime.now()
-    date_format = date.strftime("%d/%m/%Y")
-    current_time = str(date_format)
+    today = date.today()
+    current_time = str(today)
 
     if request.method == "POST":
         username = request.form.get("username")
@@ -165,9 +166,9 @@ def login():
 @app.route('/dashboard')
 def dashboard():
 
-    #todos_l = todos.find({})
-    todos_l = todos.find( { "name": { "$not": re.compile("^Dummy.*") } } ).sort( [( '_id' , -1 )] ).sort( 'Address_Space', -1 )
-    records_l = records.find({})
+    todos_l = todos.find( { "name": { "$not": re.compile("^Dummy.*") } } ).sort( [( '_id' , -1 )] ).sort( 'date', -1 )
+    #todos_l = todos.find().sort( [( '_id' , -1 )] ).sort( 'date', -1 )
+    #records_1 = records.find({})
     regions = []
     cursor = db.regions.find({}, {"region": 1})
     for document in cursor:
@@ -181,7 +182,7 @@ def dashboard():
     a1 = "active"
     if "username" in session:
         username = session["username"] 
-        return render_template('dashboard.html', username=username, a1=a1, records=records_l, todos=todos_l, t=title, h=heading, regions=regions, envtypes=envtypes)
+        return render_template('dashboard.html', username=username, a1=a1, todos=todos_l, t=title, h=heading, regions=regions, envtypes=envtypes)
     else:
         return redirect(url_for("login"))
 
@@ -189,7 +190,7 @@ def dashboard():
 @app.route("/list")
 def lists():
     
-    todos_l = todos_l = todos.find( { "name": { "$not": re.compile("^Dummy.*") } } ).sort( [( '_id' , -1 )] ).sort( 'date', -1 )
+    todos_l = todos.find()
 
     regions = []
     cursor = db.regions.find({}, {"region": 1})
@@ -201,8 +202,8 @@ def lists():
     for document in cursor:
         envtypes.append(document['envtype'])
 
-    a1 = "active"
-    return render_template('dashboard.html', a1=a1, todos=todos_l, t=title, h=heading, regions=regions, envtypes=envtypes)
+    a2 = "active"
+    return render_template('dashboard.html', a2=a2, todos=todos_l, t=title, h=heading, regions=regions, envtypes=envtypes)
 
 
 @app.route("/uncompleted")
@@ -222,8 +223,8 @@ def tasks():
     for document in cursor:
         envtypes.append(document['envtype'])
     print('calling dashboard.html')
-    a2 = "active"
-    return render_template('dashboard.html', a2=a2, todos=todos_l, t=title, h=heading, regions=regions, envtypes=envtypes)
+    a3 = "active"
+    return render_template('dashboard.html', a3=a3, todos=todos_l, t=title, h=heading, regions=regions, envtypes=envtypes)
 
 
 @app.route("/completed")
@@ -242,8 +243,8 @@ def completed():
     for document in cursor:
         envtypes.append(document['envtype'])
 
-    a3 = "active"
-    return render_template('dashboard.html', a3=a3, todos=todos_l, t=title, h=heading, regions=regions, envtypes=envtypes)
+    a4 = "active"
+    return render_template('dashboard.html', a4=a4, todos=todos_l, t=title, h=heading, regions=regions, envtypes=envtypes)
 
 
 @app.route("/done")
@@ -277,22 +278,38 @@ def action():
         envtypes.append(document['envtype'])
 
     a5 = "active"
-    todos_l = todos_l = todos.find( { "name": { "$not": re.compile("^Dummy.*") } } ).sort( [( '_id' , -1 )] ).sort( 'Address_Space', -1 )
-    #todos_l = todos.find({})
+    
+    #todos_l = db.todo.find({ 'name':{'$regex':Name}}).sort( [( 'date' , -1 )] )
+    #todos_l = todos.find( { "name": { "$not": re.compile("^Dummy.*") } } ).sort( { date: -1 } )
     name = request.form.get("name")
     envtype = request.form.get("environment")
     date = request.form.get("date")
     region = request.form.get("region")
-   
+    deletion_date = request.form.get("deletion_date")
     
+    todos_l = todos.find( { "name": { "$not": re.compile("^Dummy.*") } } ).sort( [( '_id' , -1 )] ).sort( 'date', -1 )
+    
+    #todos_l =  db.todo.find().sort( [( '_id' , -1 )] ).sort( 'date', -1 )
     #validation if Customer name already present in the database
-    Custname_found = todos.find_one({"name": name, "Environment": envtype, "Region": region})
+    name_found = todos.find_one({"name": name, "Environment": envtype, "Region": region})
     
-    if Custname_found:
+    #for doc in todos.find({"name": name}):
+    #for doc in todos.find({}):
+    #for doc in todos.find().sort({"_id":1}):
+    #for doc in todos.find({"name": name},{"Environment": envtype},{"Region": region}):
+    #for doc in todos.find({"name": name},{"_id":0}).sort("_id",-1).limit(1):
+        #myname = doc["name"]
+        #myenv = doc['Environment']
+        #myregion = doc['Region']
+        
+    if name_found:
         message = "Customer Name already exists..!"
         return render_template("dashboard.html", a5=a5, todos=todos_l, t=title, h=heading, regions=regions, envtypes=envtypes, message=message)
-    
 
+    #if name_found:
+    #    message = 'Customer Name already exists..!'
+    #    return render_template('dashboard.html', a5=a5, todos=todos_l, t=title, h=heading, regions=regions, envtypes=envtypes, message=message)
+    
     
     elif envtype == "Development":
         newaddressspace = getNextIP(envtype,1)
@@ -300,33 +317,12 @@ def action():
         NewMongoSubnet = getMongoSub(envtype,1)
         print(NewMongoSubnet)
 
-        #subprocess.call(shlex.split(f"./0-StartD.sh {name} {envtype} \"{region}\" {newaddressspace} {NewMongoSubnet}"), cwd = '/home/azureuser/relid-saas/Terraform/Dev/prepare-replicaset')
-        
-        try:
-            #me = subprocess.check_output("/home/azureuser/relid-saas_25042022/Dashboard/demo.sh", stderr=subprocess.STDOUT, shell = True)
-            #print(me)
-            subprocess.check_call(f"./0-StartD.sh {name} {envtype} \"{region}\" {newaddressspace} {NewMongoSubnet}", stderr=subprocess.STDOUT, shell = True, cwd = '/home/azureuser/relid-saas/Terraform/Dev/prepare-replicaset')
-            #print(me)
+        #subprocess.call(shlex.split(f"./0-Start.sh {name} {envtype} \"{region}\"{newaddressspace} {NewMongoSubnet}"))
 
-        except:
-            message = 'An error occured..!'
+        todos.insert_one({ "username": username, "name": name, "Environment": envtype,
+                     "date": date, "Deletion Date": deletion_date, "Region": region, "Address_Space":newaddressspace, "Mongo_Subnet":NewMongoSubnet, "done": "no"})
 
-        else:
-            message = 'Script ran successfully..!'
-
-            
-        if message == 'An error occured..!':
-            return render_template("dashboard.html", a5=a5, todos=todos_l, t=title, h=heading, regions=regions, envtypes=envtypes, message=message)
-
-        else:
-            todos.insert_one({ "username": username, "name": name, "Environment": envtype,"Region": region,
-                     "date": date,  "Address_Space":newaddressspace, "Mongo_Subnet":NewMongoSubnet, "done": "no"})
-
-            #todos_2 = todos.find( { "name": { "$not": re.compile("^Dummy.*") } } ).sort#( [( '_id' , -1 )] ).sort( 'date', -1 )
-            
-            return render_template("dashboard.html", a5=a5, todos=todos_l, t=title, h=heading, regions=regions, envtypes=envtypes, message=message)
-
-        #subprocess.call(shlex.split(f"./0-StartD.sh {name} {envtype} \"{region}\" #{newaddressspace} {NewMongoSubnet}"), cwd = '/home/azureuser/relid-saas/#Terraform/Dev/prepare-replicaset')
+        #subprocess.call(shlex.split(f"./0-Start.sh {name} {envtype} \"{region}\" {newaddressspace} {NewMongoSubnet}"))
 
     else:
         newaddressspace = getNextIP(envtype,1)
@@ -336,60 +332,70 @@ def action():
         NewRelIDSubnet = getREL_IDSub(envtype,1)
         print(NewRelIDSubnet)
 
-        #subprocess.call(shlex.split(f"./0-StartD.sh {name} {envtype} \"{region}\" {newaddressspace} {NewMongoSubnet} {NewRelIDSubnet}"), cwd = '/home/azureuser/relid-saas/Terraform/Prod/prepare-replicaset')
+        #subprocess.call(shlex.split(f"/home/azureuser/relid-saas/Dash-8april/0-Start.sh {name} {envtype} \"{region}\" {newaddressspace} {NewMongoSubnet} {NewRelIDSubnet}"))
 
-        todos.insert_one({ "username": username,"name": name, "Environment": envtype,"Region": region,
-                     "date": date,  "Address_Space":newaddressspace, "Mongo_Subnet":NewMongoSubnet, "Rel-ID_Subnet":NewRelIDSubnet, "done": "no"})
+        todos.insert_one({ "username": username, "name": name, "Environment": envtype,
+                     "date": date, "Deletion Date": deletion_date, "Region": region, "Address_Space":newaddressspace, "Mongo_Subnet":NewMongoSubnet, "Rel-ID_Subnet":NewRelIDSubnet, "done": "no"})
 
-        #subprocess.call(shlex.split(f"./0-StartD.sh {name} {envtype} \"{region}\" #{newaddressspace} {NewMongoSubnet} {NewRelIDSubnet}"), cwd = '/home/azureuser/#relid-saas/Terraform/Prod/prepare-replicaset')
+        #subprocess.call(shlex.split(f"/home/azureuser/relid-saas/Dash-8april/0-Start.sh #{name} {envtype} \"{region}\" {newaddressspace} {NewMongoSubnet} #{NewRelIDSubnet}"))
         
     # print(environment)
     # return redirect('index.html', regions=regions, answers=regions)
     #rc = subprocess.call("./script.sh")
     #subprocess.check_call(['./script.sh', 'name', 'region', 'envtype'])
-    #return redirect("/list") 
-    return render_template("dashboard.html", a5=a5, todos=todos_l, t=title, h=heading, regions=regions, envtypes=envtypes, message=message)
+
+    #return redirect("/list")
+    return redirect("/dashboard") 
 
 @app.route("/remove")
 def remove():
+
+        today = date.today()
+        #date_format = date.strftime("%d/%m/%Y")
+        deletion_date = str(today)
     
     # Deleting a Task with various references
-    key = request.values.get("_id")
-    todos.delete_one({"_id": ObjectId(key)})
-    return redirect(url_for("dashboard"))
+        #key = request.values.get("_id")
+        #todos.update_one({"Deletion Date": deletion_date})
 
-#@app.route("/update")
-#def update():
-#    
-#    id = request.values.get("_id")
-#    task = todos.find({"_id": ObjectId(id)})
-#
-#    regions = []
-#    cursor = db.regions.find({}, {"region": 1})
-#    for document in cursor:
-#        regions.append(document['region'])        # <- append to the list
-#
-#    envtypes = []
-#    cursor = db.envtypes.find({}, {"envtype": 1})
-#    for document in cursor:
-#        envtypes.append(document['envtype'])
-#
-#    return render_template('update.html', tasks=task, h=heading, t=title, #regions=regions, envtypes=envtypes)
-#
-#
-#@app.route("/action3", methods=['POST', 'GET'])
-#def action3():
-#    
-#    # Updating a Task with various references
-#    name = request.values.get("name")
-#    envtype = request.values.get("environment")
-#    print("The type is : ", type(envtype))
-#    date = request.values.get("date")
-#    region = request.values.get("region")
-#    id = request.values.get("_id")
-#    todos.update_one({"_id": ObjectId(id)}, {'$set': {
-#                     "name": name, "Environment": envtype, "date": date, "Region": #region}})
-#    return redirect("/")
+        id = request.values.get("_id")
+        todos.update_one({"_id": ObjectId(id)}, {'$set': {
+                     "Deletion Date": deletion_date}})
+        return redirect(url_for("dashboard"))
+
+    
+@app.route("/update")
+def update():
+    
+    id = request.values.get("_id")
+    task = todos.find({"_id": ObjectId(id)})
+
+    regions = []
+    cursor = db.regions.find({}, {"region": 1})
+    for document in cursor:
+        regions.append(document['region'])        # <- append to the list
+
+    envtypes = []
+    cursor = db.envtypes.find({}, {"envtype": 1})
+    for document in cursor:
+        envtypes.append(document['envtype'])
+
+    return render_template('update.html', tasks=task, h=heading, t=title, regions=regions, envtypes=envtypes)
+
+
+@app.route("/action3", methods=['POST', 'GET'])
+def action3():
+    
+    # Updating a Task with various references
+    name = request.values.get("name")
+    envtype = request.values.get("environment")
+    print("The type is : ", type(envtype))
+    date = request.values.get("date")
+    region = request.values.get("region")
+    id = request.values.get("_id")
+    todos.update_one({"_id": ObjectId(id)}, {'$set': {
+                     "name": name, "Environment": envtype, "date": date, "Region": region}})
+    return redirect("/")
 
 
 @app.route("/search", methods=['GET'])

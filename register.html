@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Register System{% endblock %}
+
+{% block content %}
+
+{% if message  %}
+    <div class="alert alert-secondary" role="alert">
+        <p>{{ message }}</p>
+    </div>
+{% endif %}
+
+<form action="" method="post">
+<center>
+  <div class="form-group text-center">
+    <br><br>
+    <td><label for="Username"><b>Username: </b></label></td>
+    <td><input name="username" id="inputUsername" aria-describedby="usernameHelp" inputmode="numeric" minlength="4"
+        maxlength="30" pattern="([A-Za-z._%+-]+[A-Za-z.-]+\.[A-Za-z]{3,}$)"
+        title="Please Enter Your Username in the form of Firstname.Lastname" placeholder="Firstname.Lastname"
+        required></td><br><br>
+  
+    <td ><label for="InputEmail"><b>Email-Id: </b></label></td>
+    <td><input name="email-id" id="InputEmail" pattern=".+@uniken\.com" validate="required:true"title="Please Enter Email-Id of uniken only..!"
+            placeholder="example@uniken.com" required> </td><br><br>
+
+    <td><label for="InputPassword"><b>Password: </b></label></td>
+    <td><input type="password" name="passwd1" id="InputPassword"
+                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*?[0-9])(?=.*?[!@#$%^&*+`~'=?\|\]\[\(\)\->/]).{8,}"
+                title="Password must contain at least 8 or more characters, one number, one special character and one uppercase and lowercase letter"
+                placeholder="Password" required> </td><br>
+
+      <br>
+      <td><label for="InputPassword2"><b>Reenter Password: </b></label></td>
+      <td><input type="password" name="passwd2" id="InputPassword2" placeholder="Repeat Password" required><br>
+
+      <br>
+      <button type="submit" class="btn btn-primary">Submit</button>
+
+    </div>
+    
+</center>
+</body>
+</html>
+
+</center>
+</form>
+{% endblock %}

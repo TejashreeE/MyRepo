@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Login System{% endblock %}
+
+{% block content %}
+
+{% if message  %}
+    <div class="alert alert-secondary" role="alert">
+        <p>{{ message }}</p>
+    </div>
+{% endif %}
+
+<form action="" method="post">
+  <div class="form-group text-center">
+    <br><br>
+      <big><label for="InputUsername">Username</label></big>
+      <input name="username" id="InputEmail"  placeholder="Enter username" required><br>
+
+      <br>
+      <big><label for="InputPassword">Password</label></big>
+      <input type="password" name="password" id="InputPassword" placeholder="Password" required><br>
+
+      <br>
+      <button type="submit" class="btn btn-primary">Login</button>
+
+      <br>
+      <small id="registerHelp" class="form-text">Don't have account..!
+        <a href="http://localhost:5000/register">Register here</a>
+      </small>
+
+  </div>
+    
+
+</body>
+</html>
+
+
+</form>
+{% endblock %}

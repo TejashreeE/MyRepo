@@ -1,16 +1,28 @@
-./Extract-Tars.sh
+#!/bin/bash
+. ./Extract-Tars.sh
 cp templates/terraform.tfvars ../
 filename=../terraform.tfvars
-echo $n Enter Customer name: $c
-read Custname
+echo $n Enter Customer name: $1
+Custname=$1
+filename=../terraform.tfvars
 sed -i "s/Uniken-1/$Custname/" "$filename"
-echo $n Enter Environment Dev/Prod: $c
-read Envname
-sed -i "s/Prod/$Envname/" "$filename"
-echo $n Enter Region: $c
-read Regionname
+echo $n Enter Environment Dev/Prod: $2
+Envname=$2
+sed -i "s/Dev/$Envname/" "$filename"
+echo $n Enter Region: $3
+Regionname=$3
 sed -i "s/Central India/$Regionname/" "$filename"
-sed -i "s/MongoNode/$Custname-MongoNode/" "$filename"
+echo $n Address_Space: $4
+Address_Space=$4
+sed -i "s|a.b.c.d/e|$Address_Space|" "$filename"
+echo $n Mongo_Subnet: $5
+Mongo_Subnet=$5
+sed -i "s|f.g.h.i/j|$Mongo_Subnet|" "$filename"
+echo $n Rel-ID_Subnet: $6
+RelID_Subnet=$6
+sed -i "s|k.l.m.n/o|$RelID_Subnet|" "$filename"
+tar -xvf templates.tar
+
 echo "Starting Deployment Process with $Custname $Envname $Regionname "
 PackerName=${Custname}"-"${Envname}
 sed -i "s/myPackerImage_15-11-2021-v3/${PackerName}_$(date +%d-%m-%Y)-v3/" "$filename"
@@ -34,18 +46,18 @@ cd prepare-replicaset
 case $Regionname in
 
     "North Europe")
-        export MCLI_PUBLIC_API_KEY="lrctgzwf"
-        export MCLI_PRIVATE_API_KEY="21400e45-c4d2-423f-a73a-0815035135f5"
-        export MCLI_OPS_MANAGER_URL="http://20.223.50.218:8080/"
-        export MCLI_ORG_ID="62552bf0f5b9f718e0d201fb"
+        export MCLI_PUBLIC_API_KEY="GRNQGFNV"
+        export MCLI_PRIVATE_API_KEY="5917e772-d6a6-4cd6-9edc-971f9355c149"
+        export MCLI_OPS_MANAGER_URL="http://20.123.27.116:8081/"
+        export MCLI_ORG_ID="616d22cca89147497eb323dc"
         export MCLI_SERVICE="ops-manager"
         export MCLI_OUTPUT=""
     ;;
     "Central India")
-        export MCLI_PUBLIC_API_KEY="fuvhbvsv"
-        export MCLI_PRIVATE_API_KEY="6dbb81bd-7494-48f2-b03f-be349b8eefbc"
-        export MCLI_OPS_MANAGER_URL="http://20.204.206.169:8080/"
-        export MCLI_ORG_ID="6222317ab03c8555a7f1ef07"
+        export MCLI_PUBLIC_API_KEY="PWJPYRKB"
+        export MCLI_PRIVATE_API_KEY="d38d5a15-aa82-41e6-93d4-fd2b5a39043e"
+        export MCLI_OPS_MANAGER_URL="http://20.204.97.175:8081/"
+        export MCLI_ORG_ID="616d22cca89147497eb323dc"
         export MCLI_SERVICE="ops-manager"
         export MCLI_OUTPUT=""
     ;;
@@ -55,7 +67,3 @@ echo $MCLI_OPS_MANAGER_URL
 
 ########### Let's start with Mongo Sequnce ########
 ./1-MongoSeq.sh
-
-#echo "*********************************"
-#echo "Now running RELIDSeq script....."
-#./2-RELIDSeq.sh

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8">
+
+
+  <title>{% block title %}{%endblock %}</title>
+  
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+</head>
+<body>
+  <h1 style="color:#87c4e9;font-size:55px;">UNIKEN</h1>
+  <p style="color:rgb(106, 166, 194);font-size:18px;">Environment Dashboard</p> 
+  <style>
+  div {
+      background-color: rgba(248, 251, 252, 0.918);
+      border-radius: 25px;
+      width: 500px;
+      padding: 50px;
+      margin: auto;
+      box-shadow: 5px 10px 18px rgb(91, 92, 92);
+      top:0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+  }
+  </style>
+  
+  
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div>
+      <a  href="/login">Login <span class="sr-only">(current)</span></a>
+      <a  href="/register">Register</a>
+    </div>
+  </div>
+</nav>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+{% block content %}{% endblock %}
+</body>
+</html>

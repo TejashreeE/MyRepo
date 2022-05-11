@@ -1,0 +1,113 @@
+<html>
+	<style>
+	table {
+		font-family: arial, sans-serif;
+		border-collapse: collapse;
+		width: 100%;
+	  }	
+	  td, th {
+		border: 1px solid #111111;
+		text-align: left;
+		padding: 8px;
+	  }	
+	  tr:nth-child(even) {
+		background-color: #78d5fa;
+	  }
+	</style>	
+
+	{% block y %} 
+
+   		{% if session.username %}
+		   <b><big>You have logged in with user {{ session.username }}</b></big> 
+   		{% else %}
+      		You are not Registered. Please <a href="/register"> register </a>.
+   		{% endif %}
+
+	{% endblock %}<br>
+	<br>
+	{% if message  %}
+    <div class="alert alert-secondary" role="alert">
+        <b><big>{{ message }}</b></big>
+    </div>
+	{% endif %}
+
+	<head>
+		<title>{{t}}</title>
+		<!-- href="/static/assets/style.css"-->
+		<link rel="stylesheet" type="text/css"  href="{{ url_for('static',filename='assets/style.css')}}" >
+		<link rel="stylesheet" type="text/css"  href="{{ url_for('static',filename='assets/emoji.css')}}" >
+		<script src="{{ url_for('static',filename='assets/twemoji.min.js')}}"></script>  
+		<script src="{{ url_for('static',filename='assets/emoji.js')}}"></script>
+	</head>
+<body>
+	<h1>{{ h }}</h1>
+	<ul>
+		<li><a href="/list" class="{{ a2 }}">ALL</a></li>
+		<li><a href="/" class="{{ a3 }}">Uncompleted</a></li>
+		<li><a href="/completed" class="{{ a4 }}">Completed</a></li>
+		<li><a href="/logout" class="{{ a4 }}">Logout</a></li>
+	</ul>
+	<hr>
+	
+	<b><big>Data of customer Requirements :</big></b><br><br>
+	<table>
+	    <tr id="row">
+	    	<th class="status">Status</th>
+			<th class="username">Username</th>
+	    	<th class="name">Customer Name</th>
+	    	<th class="environment">Environment</th>
+	    	<th class="date">Creation Date</th>
+			<th class="deletion_date">Deletion Date</th>
+	    	<th class="region">Region</th>
+			<th class="address_space">Address Space</th>
+			<th class="mongo_subnet">Mongo Subnet</th>
+			<th class="relid_subnet">Rel-ID_Subnet</th>
+		</tr>
+	{% for todo in todos %}
+		<tr class="datas">
+			<td><a href="./done?_id={{ todo['_id'] }}"><input type="image" src="static/images/{{todo['done']}}.png" alt="Submit ME"></a></td>
+			<td class="username">{{ todo["username"] }}</td>
+			<td class="name">{{ todo["name"] }}</td>
+			<td class="environment">{{ todo["Environment"] }}</td>
+			<td class="date">{{ todo["date"] }}</td>
+			<td class="deletion_date">{{ todo["Deletion Date"] }}</td>
+			<td class="region">{{ todo["Region"] }}</td>
+			<td class="address_space">{{ todo["Address_Space"] }}</td>
+			<td class="mongo_subnet">{{ todo["Mongo_Subnet"] }}</td>
+			<td class="relid_subnet">{{ todo["Rel-ID_Subnet"] }}</td>
+		</tr>
+	{% endfor %}
+	</table>
+	<hr/>
+	<form action="/action" method="POST">
+	<table class="none">
+		<tr>
+			<td><b><big><label>Add New Requirements: </label></big></b></td>
+		</tr>
+		<tr>
+		<td><input type="text" name="name" placeholder="Customer Name"  required/></td>
+		<td>			
+			<select name="environment"  style="width:100%;max-width:200;">
+				{% for envtype in envtypes %}
+					<option value="{{envtype}}">{{envtype}}</option>
+				{% endfor %}
+			</select>
+		</td>
+		<td><input type="date" name="date" placeholder="Date" /></td>
+		<td>			
+			<select name="region">
+				{% for region in regions %}
+					<option value="{{region}}">{{region}}</option>
+				{% endfor %}
+			</select>
+		</td>
+		</td>
+		<td><button type="submit"> Create </button></td>
+		</tr>
+	</form>
+	</table>
+	<script>
+
+	</script>
+</body>
+</html>
